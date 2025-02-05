@@ -28,8 +28,8 @@ if zudge.p2.poll() is not None:
 #
 
 def disqualify(p:int):
-    write(f"{zudge.sys.argv[p]} is disqualified")
-    write(f"{zudge.sys.argv[3-p]} wins!")
+    write(f"p{p} \"{zudge.sys.argv[p]}\" is disqualified")
+    write(f"p{3-p} \"{zudge.sys.argv[3-p]}\" wins!")
     exit(0)
 
 def judge(p1move:int,p2move:int)->None:
@@ -37,9 +37,9 @@ def judge(p1move:int,p2move:int)->None:
         write("draw!")
         return None
     if p1move==(p2move+1)%3:
-        write(f"{zudge.sys.argv[1]} wins!")
+        write(f"p1 \"{zudge.sys.argv[1]}\" wins!")
         return None
-    write(f"{zudge.sys.argv[2]} wins!")
+    write(f"p2 \"{zudge.sys.argv[2]}\" wins!")
     return None
 
 moves = ["R","P","S"]
