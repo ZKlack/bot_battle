@@ -50,7 +50,8 @@ def write(prcc:subprocess.Popen, msg:str)->None:
     prcc.stdin.write(msg)
     prcc.stdin.flush()
 
-def read(prcc:subprocess.Popen)->str|None:
+#   TODO: implement a timeout functionality that returns None on timeout to not fall on a deadlock caused by contestants
+def read(prcc:subprocess.Popen, timeout:int=5)->str|None:
     if not hasattr(read, "buffers"):
         read.buffers={}
     if prcc not in read.buffers:
