@@ -6,7 +6,7 @@ import sys
 if len(sys.argv)<3:
     print("Usage: python RPS.py <player1> <player2> [<output file>]")
     exit(1)
-zudge.start(sys.argv[1:3])
+p = zudge.start(sys.argv[1:3])
 
 if len(sys.argv)>=4:
     zudge.open(sys.argv[3])
@@ -14,8 +14,8 @@ if len(sys.argv)>=4:
 #GAME!!!
 
 def disqualify(p:int):
-    zudge.print(f"p{p} \"{zudge.sys.argv[p]}\" is disqualified")
-    zudge.print(f"p{3-p} \"{zudge.sys.argv[3-p]}\" wins!")
+    zudge.print(f"p{p} \"{sys.argv[p]}\" is disqualified")
+    zudge.print(f"p{3-p} \"{sys.argv[3-p]}\" wins!")
     exit(0)
 
 def judge(p1move:int,p2move:int)->None:
@@ -23,16 +23,16 @@ def judge(p1move:int,p2move:int)->None:
         zudge.print("draw!")
         return None
     if p1move==(p2move+1)%3:
-        zudge.print(f"p1 \"{zudge.sys.argv[1]}\" wins!")
+        zudge.print(f"p1 \"{sys.argv[1]}\" wins!")
         return None
-    zudge.print(f"p2 \"{zudge.sys.argv[2]}\" wins!")
+    zudge.print(f"p2 \"{sys.argv[2]}\" wins!")
     return None
 
 moves = ["R","P","S"]
 
 for _ in range(10):
-    p1move = zudge.read(zudge.p1)
-    p2move = zudge.read(zudge.p2)
+    p1move = zudge.read(p[0])
+    p2move = zudge.read(p[1])
     if p1move is None and p2move is None:
         zudge.print("both players disqualified")
         zudge.print("draw!")
@@ -52,7 +52,7 @@ for _ in range(10):
     if p2illegal:
         disqualify(2)
     judge(moves.index(p1move),moves.index(p2move))
-    zudge.write(zudge.p1,p2move)
-    zudge.write(zudge.p2,p1move)
+    zudge.write(p[0],p2move)
+    zudge.write(p[1],p1move)
 
 print("\n\nDONE!")
