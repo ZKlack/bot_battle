@@ -2,6 +2,7 @@ import os
 import subprocess
 import shutil
 import atexit
+import builtins
 
 # globals
 FILE = None #see "def open(name:str)->None:" and "def print(txt:str, end:str="\n")->int:" for context
@@ -11,7 +12,7 @@ SUPPORTED: dict[str,bool] = {
     "javascript": shutil.which("node") is not None
 }
 
-EXTENSIONS: dict[str, callable[[str], list[str]]] = {}
+EXTENSIONS: dict[str, any] = {}
 if SUPPORTED["python"]:
     EXTENSIONS["py"] = lambda name: ["python", name]
 if SUPPORTED["javascript"]:
@@ -84,11 +85,11 @@ def close(prcc:subprocess.Popen)->None:
 def print(txt:str, end:str="\n")->int:
     if FILE is not None:
         return FILE.write(txt+end)
-    __builtins__.print(txt,end=end)
+    builtins.print(txt,end=end)
     return 0
 
 def open(name:str)->None:
     global FILE
-    FILE = __builtins__.open(name,mode="w")
+    FILE = builtins.open(name,mode="w")
     atexit.register(lambda f=FILE: f.close())
 
