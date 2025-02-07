@@ -5,6 +5,8 @@ import shutil
 import atexit
 
 # globals
+FILE = None #see "def open(name:str)->bool:" and "def print(txt:str, end:str="\n")->int:" for context
+
 SUPPORTED: dict[str,bool] = {
     "python": shutil.which("python") is not None,
     "javascript": shutil.which("node") is not None
@@ -30,15 +32,17 @@ def gethandle(name:str)->list[str]|None:
         return None
     return EXTENSIONS[ext](name)
 
-def start(name:str)->subprocess.Popen|None:
+def start(name:str|list[str])->subprocess.Popen|None|list[subprocess.Popen|None]:
+    if not isinstance(name,str):
+        return [start(i) for i in name]
     if not check(name):
         return None
     handle = gethandle(name)
     
     return subprocess.Popen(
-        handle, 
-        stdin=subprocess.PIPE, 
-        stdout=subprocess.PIPE, 
+        handle,
+        stdin=subprocess.PIPE,
+        stdout=subprocess.PIPE,
         stderr=subprocess.DEVNULL,
         text=True,
         encoding="utf-8"
@@ -75,6 +79,16 @@ def close(prcc:subprocess.Popen)->None:
         pass
     if prcc.poll() is None:
         prcc.kill()
+
+def print(txt:str, end:str="\n")->int:
+    if FILE is not None:
+        return FILE.write(txt+end)
+    __builtins__.print(txt,end=end)
+    return 0
+
+def open(name:str)->None:
+    global FILE
+    FILE = __builtins__.open(name,mode="w")
 
 #setting the judge
 
