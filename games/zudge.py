@@ -1,11 +1,10 @@
 import os
-import sys
 import subprocess
 import shutil
 import atexit
 
 # globals
-FILE = None #see "def open(name:str)->bool:" and "def print(txt:str, end:str="\n")->int:" for context
+FILE = None #see "def open(name:str)->None:" and "def print(txt:str, end:str="\n")->int:" for context
 
 SUPPORTED: dict[str,bool] = {
     "python": shutil.which("python") is not None,
@@ -38,8 +37,8 @@ def start(name:str|list[str])->subprocess.Popen|None|list[subprocess.Popen|None]
     if not check(name):
         return None
     handle = gethandle(name)
-    
-    return subprocess.Popen(
+
+    result = subprocess.Popen(
         handle,
         stdin=subprocess.PIPE,
         stdout=subprocess.PIPE,
@@ -47,6 +46,8 @@ def start(name:str|list[str])->subprocess.Popen|None|list[subprocess.Popen|None]
         text=True,
         encoding="utf-8"
     )
+    atexit.register(lambda p=result: close(p))
+    return result
 
 def write(prcc:subprocess.Popen, msg:str)->None:
     msg=str(msg)
@@ -89,26 +90,5 @@ def print(txt:str, end:str="\n")->int:
 def open(name:str)->None:
     global FILE
     FILE = __builtins__.open(name,mode="w")
+    atexit.register(lambda f=FILE: f.close())
 
-#setting the judge
-
-if len(sys.argv) < 3:
-    print("Usage: <game> <player1> <player2> <output file>")
-    sys.exit(1)
-
-if not check(sys.argv[1]):
-    print(f"{sys.argv[1]} is not supported")
-    sys.exit(1)
-
-if not check(sys.argv[2]):
-    print(f"{sys.argv[2]} is not supported")
-    sys.exit(1)
-
-p1 = start(sys.argv[1])
-p2 = start(sys.argv[2])
-
-
-#terminate
-
-atexit.register(lambda:close(p1))
-atexit.register(lambda:close(p2))
