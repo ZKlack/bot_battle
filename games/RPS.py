@@ -4,7 +4,7 @@ import sys
 #file managment
 
 if len(sys.argv)<3:
-    print("Usage: python RPS.py <player1> <player2> [<output file>]")
+    print("Usage: python RPS.py <player1> <player2> [<output file>] [<number of matches>]")
     exit(1)
 p = zudge.start(sys.argv[1:3])
 
@@ -30,7 +30,7 @@ def judge(p1move:int,p2move:int)->None:
 
 moves = ["R","P","S"]
 
-for _ in range(10):
+for _ in range(10 if len(sys.argv)<5 else int(sys.argv[4])):
     p1move = zudge.read(p[0])
     p2move = zudge.read(p[1])
     if p1move is None and p2move is None:
