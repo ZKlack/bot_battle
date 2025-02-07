@@ -5,11 +5,16 @@ import shutil
 import atexit
 
 # globals
-IHAVEJAVA = shutil.which("java") is not None
+SUPPORTED: dict[str,bool] = {
+    "python": shutil.which("python") is not None,
+    "javascript": shutil.which("node") is not None
+}
 
-EXTENSIONS = ["exe","py"]
-if IHAVEJAVA:
-    EXTENSIONS.append("jar")
+EXTENSIONS: dict[str, callable[[str], list[str]]] = {}
+if SUPPORTED["python"]:
+    EXTENSIONS["py"] = lambda name: ["python", name]
+if SUPPORTED["javascript"]:
+    EXTENSIONS["js"] = lambda name: ["node", name]
 
 # Functions
 def check(name:str)->bool:
@@ -20,14 +25,10 @@ def check(name:str)->bool:
     return os.path.exists(name)
 
 def gethandle(name:str)->list[str]|None:
-    if name.endswith(".exe"):
-        return [name]
-    elif name.endswith(".py"):
-        return ["python", name]
-    elif name.endswith(".jar") and IHAVEJAVA:
-        return ["java", "-jar", name]
-    else:
+    ext = name.rsplit(".",1)[-1]
+    if ext not in EXTENSIONS:
         return None
+    return EXTENSIONS[ext](name)
 
 def start(name:str)->subprocess.Popen|None:
     if not check(name):
