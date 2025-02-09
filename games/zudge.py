@@ -53,7 +53,11 @@ def start(name:str|list[str])->subprocess.Popen|None|list[subprocess.Popen|None]
     atexit.register(lambda p=result: close(p))
     return result
 
-def write(prcc:subprocess.Popen, msg:str)->None:
+def write(prcc:subprocess.Popen|list[subprocess.Popen], msg:str)->None:
+    if not isinstance(prcc,subprocess.Popen):
+        for i in prcc:
+            write(i,msg)
+        return None
     msg=str(msg)
     if not msg.endswith("\n"):
         msg=msg+"\n"
@@ -69,7 +73,9 @@ def enqueue_output(pipe, output_queue):
     finally:
         pipe.close()
 
-def read(prcc: subprocess.Popen, timeout: int = 1) -> str | None:
+def read(prcc: subprocess.Popen|list[subprocess.Popen], timeout: int = 1) -> str | None|list[str | None]:
+    if not isinstance(prcc,subprocess.Popen):
+        return [read(i,timeout) for i in prcc]
     if not hasattr(read, "buffers"):
         read.buffers = {}
 
