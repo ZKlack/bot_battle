@@ -3,6 +3,9 @@ import subprocess
 import shutil
 import atexit
 import builtins
+import threading
+import time
+import queue
 
 # globals
 FILE = None #see "def open(name:str)->None:" and "def print(txt:str, end:str="\n")->int:" for context
@@ -58,18 +61,42 @@ def write(prcc:subprocess.Popen, msg:str)->None:
     prcc.stdin.flush()
 
 #   TODO: implement a timeout functionality that returns None on timeout to not fall on a deadlock caused by contestants
-def read(prcc:subprocess.Popen, timeout:int=5)->str|None:
-    if not hasattr(read, "buffers"):
-        read.buffers={}
-    if prcc not in read.buffers:
-        read.buffers[prcc] = []
-    while len(read.buffers[prcc]) == 0:
-        try:
-            line = prcc.stdout.readline().strip()
-            read.buffers[prcc] = line.split()
-        except Exception:
-            return None
-    return read.buffers[prcc].pop(0)
+def enqueue_output(pipe, output_queue):
+    try: for line in iter(pipe.readline, ''): output_queue.put(line.strip())
+    except Exception: pass
+    finally: pipe.close()
+
+def read(prcc: subprocess.Popen, timeout: int = 5) -> str | None:
+    if not hasattr(read, "buffers"): read.buffers = {}
+    if prcc not in read.buffers: read.buffers[prcc] = queue.Queue()
+        stdout_thread = threading.Thread(target=enqueue_output, args=(prcc.stdout, read.buffers[prcc]), daemon=True)
+        stdout_thread.start()
+    stop_event = threading.Event()
+    def timeout_func(): stop_event.set()
+
+    timer = threading.Timer(timeout, timeout_func)
+    timer.start()
+
+    try:
+        start_time = time.time()
+
+        while not stop_event.is_set():
+            if prcc.poll() is not None and read.buffers[prcc].empty():
+                return None
+
+            try:
+                line = read.buffers[prcc].get_nowait()
+                if line: return line
+            except queue.Empty: pass
+            
+            if time.time() - start_time >= timeout:
+                stop_event.set()
+                return None
+
+            time.sleep(0.1)  # Small delay to avoid busy waiting
+
+    finally: timer.cancel()
+
 
 def close(prcc:subprocess.Popen)->None:
     if prcc.poll() is not None:
