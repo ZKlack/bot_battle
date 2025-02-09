@@ -29,7 +29,7 @@ def disqualify(i:int):
         zudge.print("BOTH DISUALIFIED")
         finalize()
     zudge.print(f"p{i} DISQUALIFIED")
-    score[i] += score[1-i] + 1
+    score[1-i] += score[i] + 1
     finalize()
 
 def finalize():
