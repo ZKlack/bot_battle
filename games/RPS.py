@@ -79,6 +79,8 @@ def tell():
 
 #game
 
+zudge.write(p,rounds)
+
 for _ in range(rounds):
     ask()
     judge()
