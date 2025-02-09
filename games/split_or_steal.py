@@ -4,7 +4,7 @@ from sys import argv
 #file managment
 
 if len(argv)<3:
-    print("Usage: python RPS.py <player1> <player2> [<output file>] [<number of rounds>]")
+    print("Usage: python split_or_steal.py <player1> <player2> [<output file>] [<number of rounds>]")
     exit(1)
 p = zudge.start(argv[1:3])
 
