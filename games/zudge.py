@@ -60,19 +60,28 @@ def write(prcc:subprocess.Popen, msg:str)->None:
     prcc.stdin.write(msg)
     prcc.stdin.flush()
 
-#   TODO: implement a timeout functionality that returns None on timeout to not fall on a deadlock caused by contestants
 def enqueue_output(pipe, output_queue):
-    try: for line in iter(pipe.readline, ''): output_queue.put(line.strip())
-    except Exception: pass
-    finally: pipe.close()
+    try:
+        for line in iter(pipe.readline, ''):
+            output_queue.put(line.strip())
+    except Exception:
+        pass
+    finally:
+        pipe.close()
 
 def read(prcc: subprocess.Popen, timeout: int = 5) -> str | None:
-    if not hasattr(read, "buffers"): read.buffers = {}
-    if prcc not in read.buffers: read.buffers[prcc] = queue.Queue()
+    if not hasattr(read, "buffers"):
+        read.buffers = {}
+
+    if prcc not in read.buffers:
+        read.buffers[prcc] = queue.Queue()
         stdout_thread = threading.Thread(target=enqueue_output, args=(prcc.stdout, read.buffers[prcc]), daemon=True)
         stdout_thread.start()
+
     stop_event = threading.Event()
-    def timeout_func(): stop_event.set()
+
+    def timeout_func():
+        stop_event.set()
 
     timer = threading.Timer(timeout, timeout_func)
     timer.start()
@@ -87,15 +96,17 @@ def read(prcc: subprocess.Popen, timeout: int = 5) -> str | None:
             try:
                 line = read.buffers[prcc].get_nowait()
                 if line: return line
-            except queue.Empty: pass
+            except queue.Empty:
+                pass
             
             if time.time() - start_time >= timeout:
                 stop_event.set()
                 return None
 
-            time.sleep(0.1)  # Small delay to avoid busy waiting
+            time.sleep(0.1)
 
-    finally: timer.cancel()
+    finally:
+        timer.cancel()
 
 
 def close(prcc:subprocess.Popen)->None:
