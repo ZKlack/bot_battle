@@ -1,3 +1,4 @@
+input()
 print("split")
 tat = 0
 while True:

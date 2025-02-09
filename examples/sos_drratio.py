@@ -1,4 +1,5 @@
 import random
+input()
 
 moves = {
     "split":10,

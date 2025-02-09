@@ -1,4 +1,5 @@
 import random
+input()
 
 moves = ["R","P","S"]
 move = moves.index(random.choice(moves))
