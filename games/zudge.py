@@ -69,7 +69,7 @@ def enqueue_output(pipe, output_queue):
     finally:
         pipe.close()
 
-def read(prcc: subprocess.Popen, timeout: int = 5) -> str | None:
+def read(prcc: subprocess.Popen, timeout: int = 1) -> str | None:
     if not hasattr(read, "buffers"):
         read.buffers = {}
 
