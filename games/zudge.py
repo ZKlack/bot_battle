@@ -11,15 +11,12 @@ import queue
 FILE = None #see "def open(name:str)->None:" and "def print(txt:str, end:str="\n")->int:" for context
 
 SUPPORTED: dict[str,bool] = {
-    "python": shutil.which("python") is not None,
-    "javascript": shutil.which("node") is not None
+    "python": shutil.which("python") is not None
 }
 
 EXTENSIONS: dict[str, any] = {}
 if SUPPORTED["python"]:
     EXTENSIONS["py"] = lambda name: ["python", name]
-if SUPPORTED["javascript"]:
-    EXTENSIONS["js"] = lambda name: ["node", name]
 
 # Functions
 def check(name:str)->bool:
