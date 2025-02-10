@@ -56,6 +56,7 @@ def qualify_hand(hand:str|None)->bool:
     return True
 
 def gethands():
+    global hands
     hands = zudge.read(p)
 
 def qualifyhands():
@@ -73,7 +74,8 @@ def tellhands():
 	zudge.write(p[1],hands[0])
 
 def getmoves():
-    moves = zudge.read[p]
+    global moves
+    moves = zudge.read(p)
 
 def qualifymoves():
     m0 = moves[0] in hands[0]
