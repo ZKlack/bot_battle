@@ -7,3 +7,5 @@ while True:
     if tat>0:
         print("steal")
         tat-=1
+    else:
+        print("split")
