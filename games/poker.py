@@ -1,5 +1,6 @@
 import zudge
 from sys import argv
+import random
 
 #utility
 def argerror(txt:str=""):
@@ -31,8 +32,49 @@ while len(argv)>0:
 	players.append(argv[0])
 	argv = argv[1:]
 
+if not 2<=len(players)<=6:
+	argerror("Error: players must be 2 to 6")
+
 p = zudge.start(players)
 zudge.write(p,rounds)
+zudge.write(p,len(players))
 for i in range(len(players)):
+	zudge.write(p[i],i)
 	zudge.print(f"p{i}: {players[i]}\n")
 
+#game util
+
+def deal(deck:list[str],N:int=1):
+	cards = random.sample(deck,N)
+	for card in cards:
+		deck.remove(card)
+	return cards
+
+#game setup
+
+sampledeck = [rank+suit for rank in "A23456789TJQK" for suit in "DSCH"]
+score = [0 for _ in p]
+
+#gameloop
+
+for _ in range(rounds):
+	deck = sampledeck.copy()
+	hands = [deal(deck,2) for _ in p]
+	for i in range(len(hands)):
+		for card in hands[i]:
+			zudge.write(p[i],card)
+	community = deal(deck,5)
+	plays = [[] for _ in p]
+	zudge.write(p,community[0])
+	zudge.write(p,community[1])
+	for i in range(2,5):
+		zudge.write(p,community[i])
+		for j in range(len(p)):
+			if len(plays[j])>0 and plays[j][-1]=="ALL" or plays[j][-1]=="fold":
+				continue
+			plays[j].append(zudge.read(p[j]))
+		# TODO: qualify plays; if any is disqualified, notify who using zudge.print then exit(1)
+		for j in range(len(p)):
+			zudge.write(p,f"{j} {plays[j][-1]}")
+	# TODO: distrubute points (storage and zudge.print)
+# TODO: list total points (zudge.print)
