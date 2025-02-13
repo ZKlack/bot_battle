@@ -58,6 +58,8 @@ score = [0 for _ in p]
 #gameloop
 
 for _ in range(rounds):
+	chips = [60 for _ in p]
+	pool=0
 	deck = sampledeck.copy()
 	hands = [deal(deck,2) for _ in p]
 	for i in range(len(hands)):
@@ -68,13 +70,33 @@ for _ in range(rounds):
 	zudge.write(p,community[0])
 	zudge.write(p,community[1])
 	for i in range(2,5):
-		zudge.write(p,community[i])
 		for j in range(len(p)):
-			if len(plays[j])>0 and plays[j][-1]=="ALL" or plays[j][-1]=="fold":
+			if len(plays[j])>0 and plays[j][-1] in ["ALL","fold","disq"]:
 				continue
 			plays[j].append(zudge.read(p[j]))
-		# TODO: qualify plays; if any is disqualified, notify who using zudge.print then exit(1)
+			#qualify move
+			if plays[j][-1] is None:
+				plays[j][-1] = "disq"
+			elif plays[j][-1] not in ["ALL","fold","raise"]:
+				plays[j][-1] = "disq"
+			#execute move
+			if plays[j][-1]=="ALL":
+				pool+=chips[j]
+				chips[j]=0
+			elif plays[j][-1]=="raise":
+				pool+=10
+				chips[j]-=10
+
+		zudge.write(p,community[i])
 		for j in range(len(p)):
 			zudge.write(p,f"{j} {plays[j][-1]}")
-	# TODO: distrubute points (storage and zudge.print)
-# TODO: list total points (zudge.print)
+	handrank=[0 for _ in p]
+	for i in range(len(p)):
+		if plays[i][-1] in ["fold","disq"]:
+			handrank=-1
+			continue
+		hands[i]+=community
+		# TODO: I'm lost, how can I set the gand rank? seems complicated; will do on pen and paper first
+	# TODO: take highest rank and sort them on value
+	# TODO: distrubute "pool" between the highest value of the highest rank in "score" (most likely one person)
+# TODO: list total points "score" (zudge.print)
