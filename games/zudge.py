@@ -11,12 +11,29 @@ import queue
 FILE = None #see "def open(name:str)->None:" and "def print(txt:str, end:str="\n")->int:" for context
 
 SUPPORTED: dict[str,bool] = {
-    "python": shutil.which("python") is not None
+    "python": shutil.which("python") is not None,
+    "c++": shutil.which("g++") is not None,
+    "c": shutil.which("gcc") is not None
 }
+
+def docompile(name:str)->str|None:
+    if name.endswith(".cpp") and SUPPORTED["c++"]:
+        if subprocess.run(["g++", name, "-o", name+".exe"]).returncode != 0:
+            return None
+        return name+".exe"
+    if name.endswith(".c") and SUPPORTED["c"]:
+        if subprocess.run(["gcc", name, "-o", name+".exe"]).returncode != 0:
+            return None
+        return name+".exe"
+    return None
 
 EXTENSIONS: dict[str, any] = {}
 if SUPPORTED["python"]:
     EXTENSIONS["py"] = lambda name: ["python", name]
+if SUPPORTED["c++"]:
+    EXTENSIONS["cpp"] = lambda name: [docompile(name)]
+if SUPPORTED["c"]:
+    EXTENSIONS["c"] = lambda name: [docompile(name)]
 
 # Functions
 def check(name:str)->bool:
