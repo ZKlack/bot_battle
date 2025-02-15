@@ -50,6 +50,68 @@ def deal(deck:list[str],N:int=1):
 		deck.remove(card)
 	return cards
 
+def isroyalflush(hand:list[str])->bool:
+	big_ranks = { "T", "J", "Q", "K", "A" }
+	suits = { suit:set() for suit in "DSCH" }
+	for card in hand:
+		if card[0] in big_ranks:
+			suits[card[1]].add(card[0])
+	return any([big_ranks<=suits[suit] for suit in "DSCH"])
+
+def isstraightflush(hand:list[str])->bool:
+	rank_order = "A23456789TJQKA"
+	suits = { suit:set() for suit in "DSCH" }
+	for card in hand:
+		suits[card[1]].add(card[0])
+	return any([set(rank_order[i:i+5])<=suits[suit] for i in range(len(rank_order)-5) for suit in "DSCH"])
+
+def isfourofakind(hand:list[str])->bool:
+	rank_counts = { rank:0 for rank in "A23456789TJQK" }
+	for card in hand:
+		rank_counts[card[0]]+=1
+	return any([ rank_counts[rank]>=4 for rank in "A23456789TJQK" ])
+
+def isfullhouse(hand:list[str])->bool:
+	rank_counts = { rank:0 for rank in "A23456789TJQK" }
+	for card in hand:
+		rank_counts[card[0]]+=1
+	counts = sorted(rank_counts.values(),reverse=True)
+	return counts[0]>=3 and counts[1]>=2
+
+def isflush(hand:list[str])->bool:
+	suit_counts = { suit:0 for suit in "DSCH" }
+	for card in hand:
+		suit_counts[card[1]]+=1
+	return any([ count>=5 for count in suit_counts.values() ])
+
+def isstraight(hand:list[str])->bool:
+	rank_order = "A23456789TJQKA"
+	ranks = set()
+	for card in hand:
+		ranks.add(card[0])
+	return any([ set(rank_order[i:i+5])<=ranks for i in range(len(rank_order)-5)])
+
+def isthreeofakind(hand:list[str])->bool:
+	rank_counts = { rank:0 for rank in "A23456789TJQK" }
+	for card in hand:
+		rank_counts[card[0]]+=1
+	return any([ count>=3 for count in rank_counts.values() ])
+
+def istwopair(hand:list[str])->bool:
+	rank_counts = { rank:0 for rank in "A23456789TJQK" }
+	for card in hand:
+		rank_counts[card[0]]+=1
+	counts = sorted(rank_counts.values(),reverse=True)
+	return counts[1]>=2
+
+def isonepair(hand:list[str])->bool:
+	seen_ranks = set()
+	for card in hand:
+		if card[0] in seen_ranks:
+			return True
+		seen_ranks.add(card[0])
+	return False
+
 #game setup
 
 sampledeck = [rank+suit for rank in "A23456789TJQK" for suit in "DSCH"]
