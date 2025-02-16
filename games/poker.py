@@ -112,6 +112,10 @@ def isonepair(hand:list[str])->bool:
 		seen_ranks.add(card[0])
 	return False
 
+def judgehand(hand:list[str])->int:
+	cardeval="__23456789TJQKA"
+	return sum([ cardeval.index(card[0]) for card in hand ])
+
 #game setup
 
 sampledeck = [rank+suit for rank in "A23456789TJQK" for suit in "DSCH"]
@@ -152,13 +156,51 @@ for _ in range(rounds):
 		zudge.write(p,community[i])
 		for j in range(len(p)):
 			zudge.write(p,f"{j} {plays[j][-1]}")
-	handrank=[0 for _ in p]
+	handrank={i:"disq" for i in range(len(p))}
 	for i in range(len(p)):
 		if plays[i][-1] in ["fold","disq"]:
-			handrank=-1
 			continue
-		hands[i]+=community
-		# TODO: I'm lost, how can I set the gand rank? seems complicated; will do on pen and paper first
-	# TODO: take highest rank and sort them on value
+		hands[i]+=community.copy()
+		if	 isroyalflush(hands[i]):		handrank[i]="royal flush"
+		elif isstraightflush(hands[i]):		handrank[i]="straight flush"
+		elif isfourofakind(hands[i]):		handrank[i]="four of a kind"
+		elif isfullhouse(hands[i]):			handrank[i]="full house"
+		elif isflush(hands[i]):				handrank[i]="flush"
+		elif isstraight(hands[i]):			handrank[i]="straight"
+		elif isthreeofakind(hands[i]):		handrank[i]="three of a kind"
+		elif istwopair(hands[i]):			handrank[i]="two pair"
+		elif isonepair(hands[i]):			handrank[i]="one pair"
+		else:								handrank[i]="high card"
+	highesthands=dict()
+	if		"royal flush"		in handrank.values():
+		for i in range(len(p)):
+			if handrank[i]=="royal flush":		highesthands[i]=judgehand(hands[i])
+	elif	"straight flush"	in handrank.values():
+		for i in range(len(p)):
+			if handrank[i]=="straight flush":	highesthands[i]=judgehand(hands[i])
+	elif	"four of a kind"	in handrank.values():
+		for i in range(len(p)):
+			if handrank[i]=="four of a kind":	highesthands[i]=judgehand(hands[i])
+	elif	"full house"		in handrank.values():
+		for i in range(len(p)):
+			if handrank[i]=="full house":		highesthands[i]=judgehand(hands[i])
+	elif	"flush"				in handrank.values():
+		for i in range(len(p)):
+			if handrank[i]=="flush":			highesthands[i]=judgehand(hands[i])
+	elif	"straight"			in handrank.values():
+		for i in range(len(p)):
+			if handrank[i]=="straight":			highesthands[i]=judgehand(hands[i])
+	elif	"three of a kind"	in handrank.values():
+		for i in range(len(p)):
+			if handrank[i]=="three of a kind":	highesthands[i]=judgehand(hands[i])
+	elif	"two pair"			in handrank.values():
+		for i in range(len(p)):
+			if handrank[i]=="two pair":			highesthands[i]=judgehand(hands[i])
+	elif	"one pair"			in handrank.values():
+		for i in range(len(p)):
+			if handrank[i]=="one pair":			highesthands[i]=judgehand(hands[i])
+	else:
+		for i in range(len(p)):
+			if handrank[i]=="high card":		highesthands[i]=judgehand(hands[i])
 	# TODO: distrubute "pool" between the highest value of the highest rank in "score" (most likely one person)
 # TODO: list total points "score" (zudge.print)
