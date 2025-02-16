@@ -30,6 +30,14 @@ while len(argv)>0:
 			rounds = int(argv[1])
 			argv = argv[2:]
 			continue
+		if argv[0]=="-l":
+			if zudge.LOG is not None:
+				argerror("Error: there can only be one \"-l\" flag")
+			if len(argv)<2:
+				argerror("Error: a file name must be provided after \"-l\"")
+			zudge.openlog(argv[1])
+			argv = argv[2:]
+			continue
 	players.append(argv[0])
 	argv = argv[1:]
 
@@ -124,7 +132,8 @@ score = [0 for _ in p]
 
 #gameloop
 
-for _ in range(rounds):
+for round in range(rounds):
+	zudge.log(f"##round {round}:")
 	chips = [60 for _ in p]
 	pool=0
 	deck = sampledeck.copy()
@@ -132,15 +141,19 @@ for _ in range(rounds):
 	for i in range(len(hands)):
 		for card in hands[i]:
 			zudge.write(p[i],card)
+			zudge.log(f"game: p{i} drew {card}")
 	community = deal(deck,5)
+	zudge.log(f"game: community drew {community}")
 	plays = [[] for _ in p]
 	zudge.write(p,community[0])
 	zudge.write(p,community[1])
+	zudge.log(f"game: community cards {community[0:2]} revealed")
 	for i in range(2,5):
 		for j in range(len(p)):
 			if len(plays[j])>0 and plays[j][-1] in ["ALL","fold","disq"]:
 				continue
 			plays[j].append(zudge.read(p[j]))
+			zudge.log(f"p{j}: {plays[j][-1]}")
 			#qualify move
 			if plays[j][-1] is None:
 				plays[j][-1] = "disq"
@@ -153,10 +166,13 @@ for _ in range(rounds):
 			elif plays[j][-1]=="raise":
 				pool+=10
 				chips[j]-=10
+			zudge.log(f"game: pool={pool}, chips[p{j}]={chips[j]}")
 
 		zudge.write(p,community[i])
+		zudge.log(f"game: community card {community[i]} revealed")
 		for j in range(len(p)):
 			zudge.write(p,f"{j}\n{plays[j][-1]}")
+			zudge.log(f"game: players informed of p{j}'s move [{plays[j][-1]}]")
 	handrank={i:"disq" for i in range(len(p))}
 	for i in range(len(p)):
 		if plays[i][-1] in ["fold","disq"]:
@@ -172,6 +188,7 @@ for _ in range(rounds):
 		elif istwopair(hands[i]):			handrank[i]="two pair"
 		elif isonepair(hands[i]):			handrank[i]="one pair"
 		else:								handrank[i]="high card"
+		zudge.log(f"game: p{i}'s hand {hands[i]} is {handrank[i]} {judgehand(hands[i])}")
 	hand_priority = ["royal flush", "straight flush", "four of a kind", "full house", "flush", "straight", "three of a kind", "two pair", "one pair", "high card"]
 	highestrank = hand_priority[-1]
 	highesthands:dict[int,int]={}
@@ -183,11 +200,15 @@ for _ in range(rounds):
 			elif rank==highestrank:
 				highesthands[i]=judgehand(hands[i])
 	winners = [ i for i,points in highesthands.items() if points==max(highesthands.values()) ]
+	zudge.log(f"game: winners={[f"p{i}" for i in winners]}, pool={pool}")
 	zudge.print("[",end="")
 	for i in winners:
 		score[i]+=pool//len(winners)
+		zudge.log(f"game: p{i} score={score[i]}")
 		zudge.print(f" p{i}",end="")
 	zudge.print(" ] ",end="")
+	zudge.log("")
 zudge.print("\n\n")
 for i in range(len(p)):
 	zudge.print(f"p{i}: {score[i]}\t\t{players[i]}")
+	zudge.log(f"results: p{i}={score[i]}\t\t{players[i]}")
