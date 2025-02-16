@@ -1,0 +1,1 @@
+while True: input("ALL\n")
