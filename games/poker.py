@@ -171,36 +171,22 @@ for _ in range(rounds):
 		elif istwopair(hands[i]):			handrank[i]="two pair"
 		elif isonepair(hands[i]):			handrank[i]="one pair"
 		else:								handrank[i]="high card"
-	highesthands=dict()
-	if		"royal flush"		in handrank.values():
-		for i in range(len(p)):
-			if handrank[i]=="royal flush":		highesthands[i]=judgehand(hands[i])
-	elif	"straight flush"	in handrank.values():
-		for i in range(len(p)):
-			if handrank[i]=="straight flush":	highesthands[i]=judgehand(hands[i])
-	elif	"four of a kind"	in handrank.values():
-		for i in range(len(p)):
-			if handrank[i]=="four of a kind":	highesthands[i]=judgehand(hands[i])
-	elif	"full house"		in handrank.values():
-		for i in range(len(p)):
-			if handrank[i]=="full house":		highesthands[i]=judgehand(hands[i])
-	elif	"flush"				in handrank.values():
-		for i in range(len(p)):
-			if handrank[i]=="flush":			highesthands[i]=judgehand(hands[i])
-	elif	"straight"			in handrank.values():
-		for i in range(len(p)):
-			if handrank[i]=="straight":			highesthands[i]=judgehand(hands[i])
-	elif	"three of a kind"	in handrank.values():
-		for i in range(len(p)):
-			if handrank[i]=="three of a kind":	highesthands[i]=judgehand(hands[i])
-	elif	"two pair"			in handrank.values():
-		for i in range(len(p)):
-			if handrank[i]=="two pair":			highesthands[i]=judgehand(hands[i])
-	elif	"one pair"			in handrank.values():
-		for i in range(len(p)):
-			if handrank[i]=="one pair":			highesthands[i]=judgehand(hands[i])
-	else:
-		for i in range(len(p)):
-			if handrank[i]=="high card":		highesthands[i]=judgehand(hands[i])
-	# TODO: distrubute "pool" between the highest value of the highest rank in "score" (most likely one person)
-# TODO: list total points "score" (zudge.print)
+	hand_priority = ["royal flush", "straight flush", "four of a kind", "full house", "flush", "straight", "three of a kind", "two pair", "one pair", "high card"]
+	highestrank = hand_priority[-1]
+	highesthands:dict[int,int]={}
+	for i,rank in handrank.items():
+		if rank in hand_priority:
+			if hand_priority.index(rank) < hand_priority.index(highestrank):
+				highestrank=rank
+				highesthands={i:judgehand(hands[i])}
+			elif rank==highestrank:
+				highesthands[i]=judgehand(hands[i])
+	winners = [ i for i,points in highesthands.items() if points==max(highesthands.values()) ]
+	zudge.print("[",end="")
+	for i in winners:
+		score[i]+=pool//len(winners)
+		zudge.print(f" p{i}",end="")
+	zudge.print(" ] ",end="")
+zudge.print("\n\n")
+for i in range(len(p)):
+	zudge.print(f"p{i}: {score[i]}\t\t{players[i]}")
