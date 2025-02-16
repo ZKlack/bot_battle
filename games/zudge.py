@@ -9,6 +9,7 @@ import queue
 
 # globals
 FILE = None #see "def open(name:str)->None:" and "def print(txt:str, end:str="\n")->int:" for context
+LOG = None
 
 SUPPORTED: dict[str,bool] = {
     "python": shutil.which("python") is not None,
@@ -146,8 +147,17 @@ def print(txt:str, end:str="\n")->int:
     builtins.print(txt,end=end)
     return 0
 
+def log(txt:str, end:str="\n")->None:
+    if LOG is None:
+        return
+    LOG.write(txt+end)
+
 def open(name:str)->None:
     global FILE
     FILE = builtins.open(name,mode="w")
     atexit.register(lambda f=FILE: f.close())
 
+def openlog(name:str)->None:
+    global LOG
+    LOG = builtins.open(name,mode="w")
+    atexit.register(lambda f=LOG: f.close())
