@@ -13,6 +13,7 @@ players = []
 rounds = 10
 p = []
 
+argv=argv[1:]
 while len(argv)>0:
 	if argv[0].startswith("-"):
 		if argv[0]=="-f":
@@ -40,7 +41,7 @@ zudge.write(p,rounds)
 zudge.write(p,len(players))
 for i in range(len(players)):
 	zudge.write(p[i],i)
-	zudge.print(f"p{i}: {players[i]}\n")
+	zudge.print(f"p{i}: {players[i]}")
 
 #game util
 
@@ -155,7 +156,7 @@ for _ in range(rounds):
 
 		zudge.write(p,community[i])
 		for j in range(len(p)):
-			zudge.write(p,f"{j} {plays[j][-1]}")
+			zudge.write(p,f"{j}\n{plays[j][-1]}")
 	handrank={i:"disq" for i in range(len(p))}
 	for i in range(len(p)):
 		if plays[i][-1] in ["fold","disq"]:
