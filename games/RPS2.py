@@ -8,10 +8,10 @@ if len(argv)<3:
     exit(1)
 p = zudge.start(argv[1:3])
 
+rounds: int = 10
 if len(argv)>=4:
     rounds = int(argv[3])
 
-rounds: int = 10
 if len(argv)>=5:
     zudge.open(argv[4])
 
