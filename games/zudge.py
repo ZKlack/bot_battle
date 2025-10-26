@@ -14,7 +14,8 @@ LOG = None
 SUPPORTED: dict[str,bool] = {
     "python": shutil.which("python") is not None,
     "c++": shutil.which("g++") is not None,
-    "c": shutil.which("gcc") is not None
+    "c": shutil.which("gcc") is not None,
+    "ts": shutil.which("bun") is not None
 }
 
 def docompile(name:str)->str|None:
@@ -35,6 +36,8 @@ if SUPPORTED["c++"]:
     EXTENSIONS["cpp"] = lambda name: [docompile(name)]
 if SUPPORTED["c"]:
     EXTENSIONS["c"] = lambda name: [docompile(name)]
+if SUPPORTED["ts"]:
+    EXTENSIONS["ts"] = lambda name: ["bun", name]
 
 # Functions
 def check(name:str)->bool:
